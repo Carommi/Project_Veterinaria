@@ -3,7 +3,6 @@ from decouple import config
 from motor.motor_asyncio import AsyncIOMotorClient
 
 
-# Lee los datos de conexion desde el archivo .env.
 MONGODB_URL = config("MONGODB_URL", default="mongodb://localhost:27017")
 DATABASE_NAME = config("DATABASE_NAME", default="veterinaria")
 
