@@ -4,19 +4,22 @@ API REST para gestionar **Mascotas** con FastAPI y MongoDB.
 
 ## Preparar el entorno
 
-Desde esta carpeta, crea y activa el entorno virtual e instala las dependencias:
+Desde la carpeta raiz del proyecto, activa el entorno e instala las dependencias:
 
 ```powershell
-python -m venv venv
-.\venv\Scripts\Activate.ps1
-pip install -r requirements.txt
+.\Backend\.venv\Scripts\Activate.ps1
+python -m pip install -r .\Backend\requirements.txt
+python -m pip list
 ```
+
+El segundo comando muestra en la terminal que paquetes ya estan instalados. Para las capturas, incluye tambien el resultado de `pip list`.
 
 Configura `.env` con los valores de `.env.example`. MongoDB debe estar iniciado y la URL debe apuntar a tu instancia.
 
 ## Iniciar la API
 
 ```powershell
+cd .\Backend
 uvicorn main:app --reload
 ```
 

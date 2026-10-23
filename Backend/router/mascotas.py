@@ -1,15 +1,15 @@
-from fastapi import APIRouter, HTTPException
 from bson import ObjectId
+from fastapi import APIRouter, HTTPException
 
 from database import (
-    create_mascota,
-    delete_mascota,
-    get_mascota_por_id,
-    get_mascota_por_nombre,
-    get_todas_mascotas,
-    update_mascota,
+    actualizar_mascota,
+    buscar_mascota_por_nombre,
+    crear_mascota,
+    eliminar_mascota,
+    obtener_mascota,
+    obtener_mascotas,
 )
-from models import Mascota, UpdateMascota
+from models import ActualizarMascota, Mascota
 
 
 mascotas_router = APIRouter(prefix="/api/mascotas", tags=["Mascotas"])
@@ -17,46 +17,57 @@ mascotas_router = APIRouter(prefix="/api/mascotas", tags=["Mascotas"])
 
 @mascotas_router.get("", response_model=list[Mascota])
 async def listar_mascotas():
-    return await get_todas_mascotas()
+    return await obtener_mascotas()
 
 
 @mascotas_router.post("", response_model=Mascota)
-async def crear_mascota(mascota: Mascota):
+async def guardar_mascota(mascota: Mascota):
     datos = mascota.model_dump(exclude={"id"})
-    if await get_mascota_por_nombre(datos["nombre_mascota"]):
+
+    mascota_existente = await buscar_mascota_por_nombre(datos["nombre_mascota"])
+    if mascota_existente:
         raise HTTPException(status_code=400, detail="Ya existe una mascota con ese nombre")
-    return await create_mascota(datos)
+
+    return await crear_mascota(datos)
 
 
 @mascotas_router.get("/{mascota_id}", response_model=Mascota)
-async def obtener_mascota(mascota_id: str):
+async def consultar_mascota(mascota_id: str):
     if not ObjectId.is_valid(mascota_id):
-        raise HTTPException(status_code=400, detail="El formato del ID es inválido")
-    mascota = await get_mascota_por_id(mascota_id)
-    if mascota is None:
+        raise HTTPException(status_code=400, detail="ID invalido")
+
+    mascota = await obtener_mascota(mascota_id)
+    if not mascota:
         raise HTTPException(status_code=404, detail="Mascota no encontrada")
+
     return mascota
 
 
 @mascotas_router.put("/{mascota_id}", response_model=Mascota)
-async def editar_mascota(mascota_id: str, cambios: UpdateMascota):
+async def editar_mascota(mascota_id: str, cambios: ActualizarMascota):
     if not ObjectId.is_valid(mascota_id):
-        raise HTTPException(status_code=400, detail="El formato del ID es inválido")
-    actual = await get_mascota_por_id(mascota_id)
-    if actual is None:
+        raise HTTPException(status_code=400, detail="ID invalido")
+
+    mascota = await obtener_mascota(mascota_id)
+    if not mascota:
         raise HTTPException(status_code=404, detail="Mascota no encontrada")
+
     datos = cambios.model_dump(exclude_unset=True)
     if "nombre_mascota" in datos:
-        existente = await get_mascota_por_nombre(datos["nombre_mascota"])
-        if existente and existente["id"] != mascota_id:
+        duplicada = await buscar_mascota_por_nombre(datos["nombre_mascota"])
+        if duplicada and duplicada["id"] != mascota_id:
             raise HTTPException(status_code=400, detail="Ya existe una mascota con ese nombre")
-    return await update_mascota(mascota_id, datos)
+
+    return await actualizar_mascota(mascota_id, datos)
 
 
 @mascotas_router.delete("/{mascota_id}")
-async def eliminar_mascota(mascota_id: str):
+async def borrar_mascota(mascota_id: str):
     if not ObjectId.is_valid(mascota_id):
-        raise HTTPException(status_code=400, detail="El formato del ID es inválido")
-    if not await delete_mascota(mascota_id):
+        raise HTTPException(status_code=400, detail="ID invalido")
+
+    borrada = await eliminar_mascota(mascota_id)
+    if not borrada:
         raise HTTPException(status_code=404, detail="Mascota no encontrada")
-    return {"message": "Mascota eliminada satisfactoriamente"}
+
+    return {"mensaje": "Mascota eliminada"}
