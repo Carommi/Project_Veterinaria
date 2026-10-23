@@ -1,43 +1,35 @@
-from fastapi import FastAPI, HTTPException
-from database import get_todas_mascotas, agregar_mascota, get_mascota_por_id
-from models import Mascotas
+from contextlib import asynccontextmanager
 
-app = FastAPI()
+from decouple import config
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 
-@app.get('/')
-def welcome():
-    return {'Mensaje: Bienvenido a mi Veterinaria'}
+from database import cliente, verificar_conexion
+from router.mascotas import mascotas_router
 
-@app.get('/api/mascotas')
-async def get_mascotas():
-    mascotas = await get_todas_mascotas()
-    return mascotas
 
-@app.post('/api/mascotas')
-async def save_mascota(mascotas:Mascotas):
-    mascota_existente = await get_mascota_por_id(mascotas.id)
+@asynccontextmanager
+async def lifespan(_: FastAPI):
+    await verificar_conexion()
+    yield
+    cliente.close()
 
-    if mascota_existente:
-        raise HTTPException(status_code=400, detail="El id de la mascota ya existe")
 
-    dict_mascota = mascotas.model_dump()
-    if dict_mascota.get('id') is None:
-        del dict_mascota['id']
+app = FastAPI(title="API Veterinaria - Mascotas", lifespan=lifespan)
+frontend_url = config("FRONTEND_URL", default="http://localhost:5173").rstrip("/")
 
-    responsive = await agregar_mascota(dict_mascota)
-    return responsive
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=[frontend_url],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
-@app.get('/api/mascotas/{id}')
-async def get_mascotas(id: str):
-    Mascotas = await get_mascota_por_id(id)
-    if Mascotas:
-        return Mascotas
-    raise HTTPException(404, f'mascota {id} no encontrada')
 
-@app.put('/api/mascotas/{id}')
-async def update_mascotas():
-    return 'Actualizar datos de mascota'
+@app.get("/")
+async def bienvenida():
+    return {"message": "API de Veterinaria lista", "recurso": "/api/mascotas"}
 
-@app.delete('/api/mascotas/{id}')
-async def delete_mascota():
-    return 'Borrar mascota del sistema'
+
+app.include_router(mascotas_router)

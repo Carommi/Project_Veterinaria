@@ -1,0 +1,16 @@
+# Python
+__pycache__/
+*.py[cod]
+Backend/Veterinaria/
+Backend/venv/
+Backend/.venv/
+venv/
+
+# Variables de entorno y secretos
+Backend/.env
+.env
+
+# Frontend
+node_modules/
+Frontend/node_modules/
+Frontend/dist/
