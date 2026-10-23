@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
+import { ArrowLeft, Check, PawPrint, Sparkles } from 'lucide-react';
 import { consultarMascota, crearMascota, editarMascota } from '../api/mascotas';
 
 const formularioVacio = {
@@ -19,16 +20,13 @@ function TaskForm() {
     if (id) {
       consultarMascota(id)
         .then((mascota) => setFormulario(mascota))
-        .catch(() => setError('No se pudo cargar la mascota.'));
+        .catch(() => setError('No se pudo cargar la ficha. Intenta regresar al inicio.'));
     }
   }, [id]);
 
   function cambiarCampo(evento) {
     const { name, value, type, checked } = evento.target;
-    setFormulario({
-      ...formulario,
-      [name]: type === 'checkbox' ? checked : value,
-    });
+    setFormulario({ ...formulario, [name]: type === 'checkbox' ? checked : value });
   }
 
   async function guardar(evento) {
@@ -48,70 +46,89 @@ function TaskForm() {
   }
 
   return (
-    <main className="mx-auto max-w-2xl px-5 py-10">
-      <h1 className="text-3xl font-bold text-slate-800">
-        {id ? 'Editar mascota' : 'Registrar mascota'}
-      </h1>
-      <p className="mt-2 text-slate-600">Completa los datos del paciente.</p>
+    <main className="page-width form-page">
+      <Link to="/" className="back-link"><ArrowLeft size={17} /> Volver a pacientes</Link>
 
-      <form onSubmit={guardar} className="mt-6 space-y-5 rounded-xl bg-white p-6 shadow-sm">
-        <label className="block font-semibold text-slate-700">
-          Nombre de la mascota
-          <input
-            name="nombre_mascota"
-            value={formulario.nombre_mascota}
-            onChange={cambiarCampo}
-            required
-            className="mt-2 block w-full rounded-lg border border-slate-300 px-3 py-2 font-normal"
-          />
-        </label>
+      <div className="form-layout">
+        <aside className="form-aside">
+          <span className="form-aside-brand"><PawPrint size={20} /> DIANA VET</span>
+          <div className="form-aside-message">
+            <span className="aside-kicker"><Sparkles size={14} /> CUIDADO CON CARIÑO</span>
+            <h1>Una nueva historia empieza con <em>su nombre.</em></h1>
+            <p>Guarda sus datos para acompañar cada visita y cuidar mejor de su salud.</p>
+          </div>
+          <div className="aside-reminder">
+            <span className="reminder-check"><Check size={17} /></span>
+            <p><strong>Un buen cuidado</strong><br />comienza con una buena ficha.</p>
+          </div>
+          <span className="aside-decoration" aria-hidden="true">✳</span>
+        </aside>
 
-        <label className="block font-semibold text-slate-700">
-          Especie
-          <input
-            name="especie"
-            value={formulario.especie}
-            onChange={cambiarCampo}
-            placeholder="Perro, gato..."
-            required
-            className="mt-2 block w-full rounded-lg border border-slate-300 px-3 py-2 font-normal"
-          />
-        </label>
+        <section className="form-panel">
+          <div className="form-panel-heading">
+            <span className="form-number">FICHA DEL PACIENTE <i /> 01</span>
+            <h2>{id ? 'Actualizar ficha' : 'Registrar mascota'}</h2>
+            <p>Completa la información principal del paciente.</p>
+          </div>
 
-        <label className="block font-semibold text-slate-700">
-          Motivo de consulta
-          <textarea
-            name="motivo_consulta"
-            value={formulario.motivo_consulta}
-            onChange={cambiarCampo}
-            required
-            rows="3"
-            className="mt-2 block w-full rounded-lg border border-slate-300 px-3 py-2 font-normal"
-          />
-        </label>
+          <form onSubmit={guardar} className="pet-form">
+            <div className="form-fields-row">
+              <label className="form-field">
+                <span>Nombre de la mascota <b>*</b></span>
+                <input
+                  name="nombre_mascota"
+                  value={formulario.nombre_mascota}
+                  onChange={cambiarCampo}
+                  placeholder="Ej. Luna"
+                  required
+                />
+              </label>
+              <label className="form-field">
+                <span>Especie <b>*</b></span>
+                <input
+                  name="especie"
+                  value={formulario.especie}
+                  onChange={cambiarCampo}
+                  placeholder="Perro, gato..."
+                  required
+                />
+              </label>
+            </div>
 
-        <label className="flex items-center gap-3 font-semibold text-slate-700">
-          <input
-            type="checkbox"
-            name="vacunado"
-            checked={formulario.vacunado}
-            onChange={cambiarCampo}
-            className="h-4 w-4 accent-teal-700"
-          />
-          Tiene las vacunas al dia
-        </label>
+            <label className="form-field">
+              <span>Motivo de consulta <b>*</b></span>
+              <textarea
+                name="motivo_consulta"
+                value={formulario.motivo_consulta}
+                onChange={cambiarCampo}
+                placeholder="Cuéntanos brevemente qué necesita..."
+                rows="4"
+                required
+              />
+            </label>
 
-        {error && <p className="rounded-lg bg-rose-50 p-3 text-rose-700">{error}</p>}
+            <label className="vaccination-check">
+              <input
+                type="checkbox"
+                name="vacunado"
+                checked={formulario.vacunado}
+                onChange={cambiarCampo}
+              />
+              <span className="custom-check"><Check size={14} /></span>
+              <span><strong>Vacunación al día</strong><small>La mascota cuenta con sus vacunas.</small></span>
+            </label>
 
-        <div className="flex gap-3">
-          <button type="submit" className="rounded-lg bg-teal-700 px-5 py-2 font-semibold text-white hover:bg-teal-800">
-            Guardar
-          </button>
-          <Link to="/" className="rounded-lg bg-slate-100 px-5 py-2 font-semibold text-slate-700 hover:bg-slate-200">
-            Cancelar
-          </Link>
-        </div>
-      </form>
+            {error && <p className="form-error">{error}</p>}
+
+            <div className="form-actions">
+              <button type="submit" className="button button-primary submit-button">
+                {id ? 'Guardar cambios' : 'Guardar paciente'} <ArrowLeft className="submit-arrow" size={17} />
+              </button>
+              <span>Los campos con * son obligatorios</span>
+            </div>
+          </form>
+        </section>
+      </div>
     </main>
   );
 }

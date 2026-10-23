@@ -2,11 +2,17 @@ import TaskCard from './TaskCard';
 
 function TaskList({ mascotas, alCambiarVacuna, alEliminar }) {
   if (mascotas.length === 0) {
-    return <p className="rounded-xl bg-white p-8 text-center text-slate-500">Aun no hay mascotas registradas.</p>;
+    return (
+      <div className="empty-state">
+        <span className="empty-paw">🐾</span>
+        <h3>No encontramos pacientes por aquí</h3>
+        <p>Prueba otra búsqueda o registra la primera mascota.</p>
+      </div>
+    );
   }
 
   return (
-    <div className="grid gap-4 md:grid-cols-2">
+    <div className="pet-grid">
       {mascotas.map((mascota) => (
         <TaskCard
           key={mascota.id}

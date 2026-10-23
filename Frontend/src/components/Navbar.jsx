@@ -1,21 +1,24 @@
 import { Link } from 'react-router-dom';
-import { PawPrint, Plus } from 'lucide-react';
+import { ArrowUpRight, PawPrint, Plus } from 'lucide-react';
 
 function Navbar() {
   return (
-    <header className="bg-white shadow-sm">
-      <nav className="mx-auto flex max-w-6xl items-center justify-between px-5 py-4">
-        <Link to="/" className="flex items-center gap-2 text-xl font-bold text-teal-800">
-          <PawPrint aria-hidden="true" />
-          Veterinaria Diana
+    <header className="site-header">
+      <nav className="navbar page-width">
+        <Link to="/" className="brand" aria-label="Diana Vet, inicio">
+          <span className="brand-mark"><PawPrint size={23} strokeWidth={2.2} /></span>
+          <span className="brand-copy">
+            <strong>Diana Vet</strong>
+            <small>CUIDADO VETERINARIO</small>
+          </span>
         </Link>
-        <Link
-          to="/mascotas/nueva"
-          className="flex items-center gap-2 rounded-lg bg-teal-700 px-4 py-2 font-semibold text-white hover:bg-teal-800"
-        >
-          <Plus size={18} aria-hidden="true" />
-          Registrar mascota
-        </Link>
+
+        <div className="nav-actions">
+          <span className="clinic-status"><span /> Clínica en servicio</span>
+          <Link to="/mascotas/nueva" className="button button-primary nav-button">
+            <Plus size={18} /> <span>Nueva mascota</span> <ArrowUpRight className="button-arrow" size={16} />
+          </Link>
+        </div>
       </nav>
     </header>
   );
