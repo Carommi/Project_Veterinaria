@@ -12,7 +12,7 @@ class Mascota(BaseModel):
 
 
 class ActualizarMascota(BaseModel):
-    # Todos los campos son opcionales para permitir editar solo algunos.
+    
     nombre_mascota: Optional[str] = Field(default=None, min_length=1)
     especie: Optional[str] = Field(default=None, min_length=1)
     motivo_consulta: Optional[str] = Field(default=None, min_length=1)
